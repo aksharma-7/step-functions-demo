@@ -11,5 +11,17 @@ provider:
   region: us-east-2
 
 functions:
-  hello:
-    handler: handler.hello
+  checkInventory:
+    handler: checkInventory.handler
+
+stepFunctions:
+  stateMachines:
+    storeCheckoutFlow:
+      name: storeCheckoutFlow
+      definition:
+        StartAt: checkInventory
+        States:
+          checkInventory:
+            Type: Task
+            Resource:
+              Fn::GetAtt: [checkInventory, Arn]
