@@ -37,8 +37,9 @@ const checkInventory = async ({ bookId, quantity }) => {
   }
 };
 
-const calculateTotal = async (event) => {
-  return 100;
+const calculateTotal = async ({ book, quantity }) => {
+  const total = book.price * quantity;
+  return { total };
 };
 
 module.exports = { checkInventory, calculateTotal };

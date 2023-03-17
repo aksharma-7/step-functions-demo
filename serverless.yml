@@ -40,11 +40,13 @@ stepFunctions:
                 Next: BookNotFoundError
               - ErrorEquals: [BookOutOfStock]
                 Next: BookOutOfStockError
+            ResultPath: "$.book"
             Next: calculateTotal
           calculateTotal:
             Type: Task
             Resource:
               Fn::GetAtt: [calculateTotal, Arn]
+            ResultPath: "$.total"
             End: true
           BookNotFoundError:
             Type: Pass
