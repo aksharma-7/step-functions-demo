@@ -9,10 +9,20 @@ provider:
   name: aws
   runtime: nodejs12.x
   region: us-east-2
+  iamRoleStatements:
+    - Effect: Allow
+      Action: dynamodb:*
+      Resource: arn:aws:dynamodb:us-east-2:652152586723:table/bookTable
+    - Effect: Allow
+      Action: dynamodb:*
+      Resource: arn:aws:dynamodb:us-east-2:652152586723:table/userTable
 
 functions:
   checkInventory:
-    handler: checkInventory.handler
+    handler: handler.checkInventory
+
+  calculateTotal:
+    handler: handler.calculateTotal
 
 stepFunctions:
   stateMachines:
@@ -25,3 +35,22 @@ stepFunctions:
             Type: Task
             Resource:
               Fn::GetAtt: [checkInventory, Arn]
+            Catch:
+              - ErrorEquals: [BookNotFound]
+                Next: BookNotFoundError
+              - ErrorEquals: [BookOutOfStock]
+                Next: BookOutOfStockError
+            Next: calculateTotal
+          calculateTotal:
+            Type: Task
+            Resource:
+              Fn::GetAtt: [calculateTotal, Arn]
+            End: true
+          BookNotFoundError:
+            Type: Pass
+            Result: "No Such Book Found"
+            End: true
+          BookOutOfStockError:
+            Type: Pass
+            Result: "Sorry, the book is out of stock"
+            End: true
